@@ -28,29 +28,31 @@ async function run() {
         // Get all product from db
         app.get('/products', async (req, res) => {
             try {
-                const products = await productsCollections.find().toArray();
+                const products = await productsCollections.find( /*{
+                    // Query Product
+                    price: { $gt: 400 }
+                }*/ ).toArray();
                 res.send(products)
             } catch (error) {
                 console.error("Error fetching product:", error.message)
-                res.status(500).send({message: "Internal Server Error"})
+                res.status(500).send({ message: "Internal Server Error" })
             }
         })
 
         // Get a single product from the database
         app.get('/products/:id', async (req, res) => {
             try {
-                // Extract product ID from request parameters
+                // রিকোয়েষ্ট প্যারামিটার থেকে পণ্যের আইডি বের করুন
                 const id = req.params.id;
 
-                // Find the product in the collection by its ID
+                // সংগ্রহে (collection) থাকা পণ্যটিকে এর আইডি দিয়ে খুঁজু
                 const result = await productsCollections.findOne(
-                    { _id: new ObjectId(id) }, // Convert string ID to ObjectId
+                    { _id: new ObjectId(id) }, // স্ট্রিং আইডিকে ObjectId-তে রূপান্তর করুন
                     {
-                        projection: { _id: 0, name: 0 } // Exclude _id and name fields from response
+                        projection: { _id: 0, name: 0 } // response থেকে _id এবং name বাদ দিন
+
                     }
                 );
-
-                // Send the found product data as a response
                 res.send(result);
 
             } catch (error) {
@@ -59,12 +61,18 @@ async function run() {
             }
         });
 
-        //Query product from the database
-        app.get('/queryProduct', async ( req, res ) => {
-            const result = await productsCollections.find({
-                price: {$gt: 400}
-            }).toArray();
-            res.send(result);
+        // Delete product from the database
+        app.delete('/products/:id', async ( req, res ) => {
+            try {
+                const id = req.params.id;
+                const result = await productsCollections.deleteOne(
+                    {_id: new ObjectId(id)}
+                );
+                res.send(result);
+            } catch (error) {
+                console.error('Error Delete Product: ', error.message);
+                res.status(500).send({message: "Internal Server Error"})
+            }
         })
 
         // Post product to db
