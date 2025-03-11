@@ -24,31 +24,48 @@ async function run() {
         const db = client.db('sunnah-storeDB');
         // Collcetions
         const productsCollections = db.collection('products');
-        
+
         // Get all product from db
         app.get('/products', async (req, res) => {
             try {
                 const products = await productsCollections.find().toArray();
                 res.send(products)
             } catch (error) {
-                error.message
+                console.error("Error fetching product:", error.message)
+                res.status(500).send({message: "Internal Server Error"})
             }
         })
 
-        // Get a single product from db
+        // Get a single product from the database
         app.get('/products/:id', async (req, res) => {
             try {
+                // Extract product ID from request parameters
                 const id = req.params.id;
-                const result = await productsCollections.findOne({
-                    _id: new ObjectId(id),
-                });
-                res.send({
-                    data: result
-                });
+
+                // Find the product in the collection by its ID
+                const result = await productsCollections.findOne(
+                    { _id: new ObjectId(id) }, // Convert string ID to ObjectId
+                    {
+                        projection: { _id: 0, name: 0 } // Exclude _id and name fields from response
+                    }
+                );
+
+                // Send the found product data as a response
+                res.send(result);
+
             } catch (error) {
-                error.message
+                console.error("Error fetching product:", error.message); // Log the error
+                res.status(500).send({ message: "Internal Server Error" }); // Send an error response
             }
         });
+
+        //Query product from the database
+        app.get('/queryProduct', async ( req, res ) => {
+            const result = await productsCollections.find({
+                price: {$gt: 400}
+            }).toArray();
+            res.send(result);
+        })
 
         // Post product to db
         app.post('/products', async (req, res) => {
