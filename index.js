@@ -25,6 +25,32 @@ async function run() {
         // Collcetions
         const productsCollections = db.collection('products');
 
+        // Post a Single product to db
+        app.post('/product', async (req, res) => {
+            const product = req.body;
+            const result = await productsCollections.insertOne(product);
+            res.send({
+                status: "success",
+                data: result
+            })
+        })
+
+        // Post many products to db
+        app.post('/products', async (req, res) => {
+            try {
+                const product = req.body;
+                const result = await productsCollections.insertMany(product);
+                res.send({
+                    success: true,
+                    insertedCount: result.insertedCount,
+                    insertedIds: result.insertedIds
+                });
+            } catch (error) {
+                console.error("Error inserting products:", error.message);
+                res.status(500).send({ success: false, message: error.message });
+            }
+        });
+
         // Get all product from db
         app.get('/products', async (req, res) => {
             try {
@@ -61,29 +87,64 @@ async function run() {
             }
         });
 
-        // Delete product from the database
-        app.delete('/products/:id', async ( req, res ) => {
+        // Delete a single product from the database
+        app.delete('/products/:id', async (req, res) => {
             try {
                 const id = req.params.id;
                 const result = await productsCollections.deleteOne(
-                    {_id: new ObjectId(id)}
+                    { _id: new ObjectId(id) }
                 );
                 res.send(result);
             } catch (error) {
                 console.error('Error Delete Product: ', error.message);
-                res.status(500).send({message: "Internal Server Error"})
+                res.status(500).send({ message: "Internal Server Error" })
             }
         })
 
-        // Post product to db
-        app.post('/products', async (req, res) => {
-            const product = req.body;
-            const result = await productsCollections.insertOne(product);
-            res.send({
-                status: "success",
-                data: result
-            })
-        })
+        // Update a single product
+        app.put('/product/:id', async (req, res) => {
+            try {
+                const id = req.params.id;
+                const updateProduct = req.body;
+                const option = { upsert: true } // এটার মানে হলো আমি যখন কোনো প্রডাক্ট তাই আইডি দিয়ে আপডেট করব তখন যদি সেই আইডি দিয়ে কোনো প্রডাক্ট না থাকে তাহলে অটো একটা পডাক্ট তৈরি হয়ে যাবে।
+
+                const result = await productsCollections.replaceOne(
+                    { _id: new ObjectId(id) },
+                    updateProduct,
+                    option
+                );
+                res.send({
+                    success: true,
+                    modifiedCount: result.modifiedCount
+                })
+            } catch (error) {
+                console.error("PUT Error:", error.message);
+                res.status(500).send({ success: false, message: error.message });
+            }
+        });
+
+        // Update a single product
+        app.patch('/product/:id', async (req, res) => {
+            try {
+                const id = req.params.id;
+                const updateProduct = req.body;
+                const option = { upsert: true } // এটার মানে হলো আমি যখন কোনো প্রডাক্ট তাই আইডি দিয়ে আপডেট করব তখন যদি সেই আইডি দিয়ে কোনো প্রডাক্ট না থাকে তাহলে অটো একটা পডাক্ট তৈরি হয়ে যাবে।
+
+                const result = await productsCollections.updateOne(
+                    { _id: new ObjectId(id) },
+                    { $set: updateProduct },
+                    option
+                );
+                res.send({
+                    success: true,
+                    modifiedCount: result.modifiedCount
+                })
+            } catch (error) {
+                console.error("PUT Error:", error.message);
+                res.status(500).send({ success: false, message: error.message });
+            }
+        });
+
         console.log('Connected to db')
     } finally {
 
