@@ -1,8 +1,6 @@
 {
     "version": 2,
     "name": "server",
-    "comment": "এই ফাইল শুধু API (Node.js) Vercel-এ ডিপ্লয় করার জন্য।",
-    "comment 2": "এখানে src এর ভিতরে index.js এভাবে দেওয়ার কারন হলো আমি vercel.json কে বলে দিলাম যে আমার ফাইল ঐ জাইগাতে আছে সেটা রান করো",
 
     "builds": [
         {
