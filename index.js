@@ -24,7 +24,9 @@ async function run() {
         const db = client.db('sunnah-storeDB');
         // Collcetions
         const productsCollections = db.collection('products');
+        const usersCollections = db.collection('users');
 
+        /************ START PRODUCT COLLECTION ***********/
         // Post a Single product to db
         app.post('/product', async (req, res) => {
             const product = req.body;
@@ -65,7 +67,7 @@ async function run() {
             }
         })
 
-        // Get a single product from the database
+        // Get a single product from db
         app.get('/products/:id', async (req, res) => {
             try {
                 // রিকোয়েষ্ট প্যারামিটার থেকে পণ্যের আইডি বের করুন
@@ -144,6 +146,59 @@ async function run() {
                 res.status(500).send({ success: false, message: error.message });
             }
         });
+
+        /************ END PRODUCT COLLECTION ***********/
+
+        /************ START USERS COLLECTION ***********/
+        // Post a single user to db
+        app.post('/user', async (req, res) => {
+            try {
+                const user = req.body;
+                const result = await usersCollections.insertOne(user);
+                const userExists = {email: user.email};
+                if (userExists) {
+                    res.status(400).send({Message: 'User Already Exists'});
+                }
+                res.send({
+                    status: 'Success',
+                    data: result
+                })
+            } catch (error) {
+                console.error("Error inserting products:", error.message);
+                res.status(500).send({ status: 'Unsuccess', message: error.message });
+            }
+        });
+
+        // Get all users from db
+        app.get('/users', async (req, res) => {
+            try {
+                const users = await usersCollections.find().toArray();
+                res.send(users);
+            } catch (error) {
+                console.error("Error fetching users:", error.message)
+                res.status(500).send({ message: "Internal Server Error" })
+            }
+        });
+
+        // Get a single user from db
+        app.get('/users/:id', async (req, res) => {
+            try {
+                const id = req.params.id;
+                const result = await usersCollections.findOne(
+                    {
+                        _id: new ObjectId(id)
+                    },
+                    {
+                        projection: { _id: 0 }
+                    }
+                );
+                res.send(result);
+            } catch (error) {
+                console.error("Error fetching user:", error.message);
+                res.status(500).send({ message: "Internal Server Error" });
+            }
+        });
+        /************ END USERS COLLECTION ***********/
 
         console.log('Connected to db')
     } finally {
