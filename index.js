@@ -55,7 +55,7 @@ async function run() {
         });
 
         // Get all product from db
-        app.get('/api/products', async (req, res) => {
+        app.get('/products', async (req, res) => {
             try {
                 const products = await productsCollections.find( /*{
                     // Query Product
