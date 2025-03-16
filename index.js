@@ -1,5 +1,6 @@
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config();
+// console.log("DB_USER:", process.env.DB_USER); // যদি undefined দেখায়, তাহলে .env ফাইলে সঠিকভাবে ভ্যারিয়েবল সেট করো।
 const express = require('express');
 const app = express();
 const port = process.env.PORT || 5000;
@@ -8,18 +9,18 @@ app.use(express.json());
 // db connection
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@hldream.lq9fn.mongodb.net/?retryWrites=true&w=majority&appName=hldream`;    // Uniform Resource Identifier
 // mongobd client
-const client = new MongoClient(uri, {
+const client = new MongoClient(uri/*, { অপ্রয়জনীয় কোড
     serverApi: {
-        version: ServerApiVersion.v1,
+        version: ServerApiVersion.v1, 
         strict: true,
         deprecationErrors: true
     }
-});
+}*/);
 
 async function run() {
     try {
-        // Connect the client to the server	(optional starting in v4.7)
-        await client.connect();
+        // // Connect the client to the server	(optional starting in v4.7)
+        // await client.connect(); অপ্রয়জনীয় কোড
         // Database
         const db = client.db('sunnah-storeDB');
         // Collcetions
@@ -54,7 +55,7 @@ async function run() {
         });
 
         // Get all product from db
-        app.get('/products', async (req, res) => {
+        app.get('/api/products', async (req, res) => {
             try {
                 const products = await productsCollections.find( /*{
                     // Query Product
@@ -154,20 +155,27 @@ async function run() {
         app.post('/user', async (req, res) => {
             try {
                 const user = req.body;
-                const result = await usersCollections.insertOne(user);
-                const userExists = {email: user.email};
+        
+                // Check if user already exists
+                const userExists = await usersCollections.findOne({ email: user.email });
+        
                 if (userExists) {
-                    res.status(400).send({Message: 'User Already Exists'});
+                    return res.status(400).send({ message: 'User Already Exists' });
                 }
+        
+                // Insert user if not exists
+                const result = await usersCollections.insertOne(user);
+        
                 res.send({
                     status: 'Success',
                     data: result
-                })
+                });
             } catch (error) {
-                console.error("Error inserting products:", error.message);
+                console.error("Error inserting user:", error.message);
                 res.status(500).send({ status: 'Unsuccess', message: error.message });
             }
         });
+        
 
         // Get all users from db
         app.get('/users', async (req, res) => {
