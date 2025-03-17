@@ -29,7 +29,7 @@ async function run() {
 
         /************ START PRODUCT COLLECTION ***********/
         // Post a Single product to db
-        app.post('/product', async (req, res) => {
+        app.post('/api/product', async (req, res) => {
             const product = req.body;
             const result = await productsCollections.insertOne(product);
             res.send({
@@ -39,7 +39,7 @@ async function run() {
         })
 
         // Post many products to db
-        app.post('/products', async (req, res) => {
+        app.post('/api/products', async (req, res) => {
             try {
                 const product = req.body;
                 const result = await productsCollections.insertMany(product);
@@ -69,7 +69,7 @@ async function run() {
         })
 
         // Get a single product from db
-        app.get('/products/:id', async (req, res) => {
+        app.get('/api/products/:id', async (req, res) => {
             try {
                 // রিকোয়েষ্ট প্যারামিটার থেকে পণ্যের আইডি বের করুন
                 const id = req.params.id;
@@ -91,7 +91,7 @@ async function run() {
         });
 
         // Delete a single product from the database
-        app.delete('/products/:id', async (req, res) => {
+        app.delete('/api/products/:id', async (req, res) => {
             try {
                 const id = req.params.id;
                 const result = await productsCollections.deleteOne(
@@ -105,7 +105,7 @@ async function run() {
         })
 
         // Update a single product
-        app.put('/product/:id', async (req, res) => {
+        app.put('/api/product/:id', async (req, res) => {
             try {
                 const id = req.params.id;
                 const updateProduct = req.body;
@@ -127,7 +127,7 @@ async function run() {
         });
 
         // Update a single product
-        app.patch('/product/:id', async (req, res) => {
+        app.patch('/api/product/:id', async (req, res) => {
             try {
                 const id = req.params.id;
                 const updateProduct = req.body;
@@ -152,20 +152,20 @@ async function run() {
 
         /************ START USERS COLLECTION ***********/
         // Post a single user to db
-        app.post('/user', async (req, res) => {
+        app.post('/api/user', async (req, res) => {
             try {
                 const user = req.body;
-        
+
                 // Check if user already exists
                 const userExists = await usersCollections.findOne({ email: user.email });
-        
+
                 if (userExists) {
                     return res.status(400).send({ message: 'User Already Exists' });
                 }
-        
+
                 // Insert user if not exists
                 const result = await usersCollections.insertOne(user);
-        
+
                 res.send({
                     status: 'Success',
                     data: result
@@ -175,10 +175,10 @@ async function run() {
                 res.status(500).send({ status: 'Unsuccess', message: error.message });
             }
         });
-        
+
 
         // Get all users from db
-        app.get('/users', async (req, res) => {
+        app.get('/api/users', async (req, res) => {
             try {
                 const users = await usersCollections.find().toArray();
                 res.send(users);
@@ -189,7 +189,7 @@ async function run() {
         });
 
         // Get a single user from db
-        app.get('/users/:id', async (req, res) => {
+        app.get('/api/users/:id', async (req, res) => {
             try {
                 const id = req.params.id;
                 const result = await usersCollections.findOne(
