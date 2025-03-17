@@ -9,18 +9,18 @@ app.use(express.json());
 // db connection
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@hldream.lq9fn.mongodb.net/?retryWrites=true&w=majority&appName=hldream`;    // Uniform Resource Identifier
 // mongobd client
-const client = new MongoClient(uri/*, { অপ্রয়জনীয় কোড
+const client = new MongoClient(uri, { 
     serverApi: {
         version: ServerApiVersion.v1, 
         strict: true,
         deprecationErrors: true
     }
-}*/);
+});
 
 async function run() {
     try {
         // // Connect the client to the server	(optional starting in v4.7)
-        // await client.connect(); অপ্রয়জনীয় কোড
+        await client.connect();
         // Database
         const db = client.db('sunnah-storeDB');
         // Collcetions
