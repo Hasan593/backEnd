@@ -9,18 +9,18 @@ app.use(express.json());
 // db connection
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@hldream.lq9fn.mongodb.net/?retryWrites=true&w=majority&appName=hldream`;    // Uniform Resource Identifier
 // mongobd client
-const client = new MongoClient(uri, { 
+const client = new MongoClient(uri/*, { অপ্রয়জনীয় কোড
     serverApi: {
         version: ServerApiVersion.v1, 
         strict: true,
         deprecationErrors: true
     }
-});
+}*/);
 
 async function run() {
     try {
         // // Connect the client to the server	(optional starting in v4.7)
-        await client.connect();
+        // await client.connect(); অপ্রয়জনীয় কোড
         // Database
         const db = client.db('sunnah-storeDB');
         // Collcetions
@@ -55,7 +55,7 @@ async function run() {
         });
 
         // Get all product from db
-        app.get('/products', async (req, res) => {
+        app.get('api/products', async (req, res) => {
             try {
                 const products = await productsCollections.find( /*{
                     // Query Product
@@ -219,4 +219,10 @@ app.get('/', (req, res) => {
     res.send("Wellcome to our server")
 })
 
-app.listen(port, () => console.log(`Server is running on port ${port}`));
+// লোকাল সার্ভার ও প্রডাকশন এ চালানোর জন্য এই কন্ডিশন
+if (process.env.NODE_ENV !== "production") {
+    const port = process.env.PORT || 5000;
+    app.listen(port, () => console.log(`Server is running on port ${port}`));
+}
+
+module.exports = app;
